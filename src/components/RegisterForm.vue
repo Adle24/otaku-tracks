@@ -95,6 +95,9 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+import useUserStore from '../stores/user'
+
 export default {
   data() {
     return {
@@ -117,13 +120,27 @@ export default {
     }
   },
   methods: {
-    register() {
+    ...mapActions(useUserStore, { createUser: 'register' }),
+
+    async register(values) {
       this.regShowAlert = true
       this.regInSubmission = true
       this.regAlertVariant = 'bg-blue-500'
       this.regAlertMsg = 'Please wait! Your account is being created.'
+
+      try {
+        await this.createUser(values)
+      } catch (err) {
+        this.regInSubmission = false
+        this.regAlertVariant = 'bg-red-500'
+        this.regAlertMsg = 'An unexpected error occured. Please try again later.'
+        return
+      }
+
       this.regAlertVariant = 'bg-green-500'
       this.regAlertMsg = 'Success! Your account is created'
+
+      window.location.reload()
     }
   }
 }

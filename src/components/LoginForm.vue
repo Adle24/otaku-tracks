@@ -38,6 +38,9 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+import useUserStore from '@/stores/user'
+
 export default {
   data() {
     return {
@@ -52,14 +55,26 @@ export default {
     }
   },
   methods: {
-    login() {
+    ...mapActions(useUserStore, ['authenticate']),
+    async login(values) {
       this.logInSubmission = true
       this.logShowAlert = true
       this.logAlertVariant = 'bg-blue-500'
       this.logAlertMsg = 'Please wait! We are logging you in.'
 
+      try {
+        await this.authenticate(values)
+      } catch (err) {
+        this.logInSubmission = false
+        this.logAlertVariant = 'bg-red-500'
+        this.logAlertMsg = 'Invalid login details.'
+        return
+      }
+
       this.logAlertVariant = 'bg-green-500'
       this.logAlertMsg = 'Success! You are logged in!'
+
+      window.location.reload()
     }
   }
 }
